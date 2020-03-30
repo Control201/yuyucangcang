@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org">
+
+<!--热点内容-->
+<div th:fragment="hotspot">
+    <dl class="fly-panel fly-list-one">
+        <dt class="fly-panel-title">最近热议 <i class="layui-icon layui-icon-fire" style="color: red" title="热度"></i></dt>
+        <dd th:each="hotSpotArticle:${hotSpotArticleList}">
+            <a th:href="@{'/blog/detail/'+${hotSpotArticle.getAid()}}" th:utext="${hotSpotArticle.getTitle()}"></a>
+            <span>
+            <i class="layui-icon layui-icon-reply-fill" title="聊一聊"></i>
+            </span>
+        </dd>
+<!--         无数据时 -->
+        <div class="fly-none" th:if="${#arrays.isEmpty(hotSpotArticleList)}">最近的社区好安静哦！</div>
+    </dl>
+
+</div>

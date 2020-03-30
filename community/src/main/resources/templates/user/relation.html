@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>我的圈子</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="郁郁苍苍,Share,分享,生活,快乐,让世间美好与你环环相扣">
+    <meta name="time" content="写自于2020年一个雪虐风饕的晚上">
+    <meta name="description" content="乐人之乐,人亦乐其乐;忧人之忧,人亦忧其忧。郁郁苍苍 一个可以分享心情,分享时光,分享生活点滴的社交平台">
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="bookmark" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/layui/css/modules/layer/default/layer.css}">
+</head>
+<body>
+<!--引入上边栏-->
+<div th:replace="~{common/header::head}"></div>
+
+<!--页面中间-->
+<div class="layui-container fly-marginTop fly-user-main">
+    <!--登录后的-用户左边栏-->
+    <ul class="layui-nav layui-bg-cyan layui-nav-tree layui-inline" lay-filter="user">
+        <li class="layui-nav-item">
+            <a th:href="@{'/user/home/'+${session.loginUser.getUid()}}">
+                <i class="layui-icon">&#xe609;</i>
+                我的主页
+            </a>
+        </li>
+        <li class="layui-nav-item">
+            <a th:href="@{'/user/set/'+${session.loginUser.getUid()}}">
+                <i class="layui-icon">&#xe620;</i>
+                基本设置
+            </a>
+        </li>
+        <li class="layui-nav-item ">
+            <a th:href="@{/user/index}">
+                <i class="layui-icon">&#xe60a;</i>
+                我的帖子
+            </a>
+        </li>
+
+        <li class="layui-nav-item">
+            <a th:href="@{/user/message}">
+                <i class="layui-icon">&#xe611;</i>
+                我的消息
+            </a>
+        </li>
+
+        <li class="layui-nav-item layui-this">
+            <a th:href="@{/user/relation}">
+                <i class="layui-icon">&#xe770;</i>
+                我的圈子
+            </a>
+        </li>
+
+    </ul>
+    <!--手机适配-->
+    <div class="site-tree-mobile layui-hide">
+        <i class="layui-icon"></i>
+    </div>
+    <div class="site-mobile-shade"></div>
+
+    <div class="fly-panel fly-panel-user" pad20>
+        <div class="layui-tab layui-tab-brief" lay-filter="user">
+            <ul class="layui-tab-title" id="LAY_mine">
+                <li class="layui-this">
+                    我的关注（<span id="myIdol">[[${idolTotal}]]</span>）
+                </li>
+                <li>我的粉丝（<span id="myFans">[[${fansTotal}]]</span>）</li>
+            </ul>
+            <div class="layui-tab-content" style="padding: 5px 0;">
+                <div class="layui-tab-item layui-show">
+                    <ul class="fly-list" id="idols">
+                        <li th:each="idol:${idolList}" th:id="${idolStat.index}">
+                            <input type="hidden" th:id="'hid'+${idolStat.index}" th:value="${idol.getUid()}">
+                            <a th:href="@{'/user/home/'+${idol.getUid()}}" class="fly-avatar">
+                                <img th:src="@{${idol.getAvatar()}}" th:alt="${idol.getNickName()}">
+                            </a>
+                            <div>
+                                <div class="fly-list-info">
+                                    <a th:href="@{'/user/home/'+${idol.getUid()}}" link>
+                                        <b style="font-size: 15px;color: black">[[${idol.getNickName()}]]</b>
+                                        <i class="iconfont icon-renzheng" th:if="${idol.getAuthority()==3}"
+                                           title="认证信息：程序员小哥哥"></i>
+                                        <i class="iconfont icon-renzheng" th:if="${idol.getAuthority()==2}"
+                                           title="认证信息：管理员大大"></i>
+                                        <i class="iconfont icon-renzheng" th:if="${idol.getAuthority()==1}"
+                                           th:title="${idol.getSex()==1}?'认证信息：社区靓仔':'认证信息：社区靓妹'"></i>
+                                        <i class="iconfont icon-nan" th:if="${idol.getSex()==1}"
+                                           style="color: #4EBBF9"></i>
+                                        <i class="iconfont icon-nv" th:if="${idol.getSex()==2}"
+                                           style="color:#F581B1"></i>
+                                        <i class="layui-badge fly-badge-vip" th:if="${idol.getAuthority()==3}">VIP3</i>
+                                    </a>
+                                </div>
+                                <p>
+                                    <span style="color: #999999" th:utext="${idol.getSignature()==''}?'这个人懒得留下签名':${idol.getSignature()}"></span>
+                                </p>
+                                <span style="position: absolute; right: 0; top: 22px; padding-right: 0!important;">
+                                    <button class="layui-btn fly-imActive"
+                                            style="background-color:#646973" relation="true"
+                                            th:onclick="modifyRelation([[${idolStat.index}]])">取消关注
+                                    </button>
+                                 </span>
+                            </div>
+                        </li>
+                        <div th:if="${#arrays.isEmpty(idolList)}" class="fly-none"
+                             style="min-height: 50px; padding:30px 0; height:auto;">
+                            <i style="font-size:14px;">目前还没有关注人哦！去主页找找有缘人吧</i>
+                        </div>
+                    </ul>
+                    <!--自己发的贴分页-->
+                    <div style="text-align: center;" th:if="${idolTotal} > 10">
+                        <!--分页-->
+                        <div id="idolPage"></div>
+                    </div>
+                </div>
+                <!--     我的粉丝-->
+                <div class="layui-tab-item">
+                    <ul class="fly-list" id="fans">
+                        <li th:each="fans:${fansList}">
+                            <a th:href="@{'/user/home/'+${fans.getUid()}}" class="fly-avatar">
+                                <img th:src="@{${fans.getAvatar()}}"
+                                     th:alt="${fans.getNickName()}">
+                            </a>
+                            <div>
+                                <div class="fly-list-info">
+                                    <a th:href="@{'/user/home/'+${fans.getUid()}}" link>
+                                        <b style="font-size: 15px;color: black">[[${fans.getNickName()}]]</b>
+                                        <i class="iconfont icon-renzheng" th:if="${fans.getAuthority()==3}"
+                                           title="认证信息：程序员小哥哥"></i>
+                                        <i class="iconfont icon-renzheng" th:if="${fans.getAuthority()==2}"
+                                           title="认证信息：管理员大大"></i>
+                                        <i class="iconfont icon-renzheng" th:if="${fans.getAuthority()==1}"
+                                           th:title="${fans.getSex()==1}?'认证信息：社区靓仔':'认证信息：社区靓妹'"></i>
+                                        <i class="iconfont icon-nan" th:if="${fans.getSex()==1}"
+                                           style="color: #4EBBF9"></i>
+                                        <i class="iconfont icon-nv" th:if="${fans.getSex()==2}"
+                                           style="color:#F581B1"></i>
+                                        <i class="layui-badge fly-badge-vip" th:if="${fans.getAuthority()==3}">VIP3</i>
+                                    </a>
+                                </div>
+                                <p>
+                                    <span style="color: #999999" th:utext="${fans.getSignature()==''}?'这个人懒得留下签名':${fans.getSignature()}"></span>
+                                </p>
+                            </div>
+                        </li>
+                        <div th:if="${#arrays.isEmpty(fansList)}" class="fly-none"
+                             style="min-height: 50px; padding:30px 0; height:auto;">
+                            <i style="font-size:14px;">目前还没有粉丝哦！快发发帖让更多人看你吧</i>
+                        </div>
+                    </ul>
+                    <!--私密贴分页-->
+                    <div style="text-align: center;" th:if="${fansTotal}>10">
+                        <!--分页-->
+                        <div id="fansPage"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--页面底部-->
+<div th:replace="~{common/footer::foot}"></div>
+<script th:inline="javascript">
+    //发送方
+    var uid = $("#uid").val();
+    layui.use(['laypage', 'layer'], function () {
+        var laypage = layui.laypage
+            , layer = layui.layer;
+
+        window.modifyRelation = function (index) {
+            //接受方
+            var rid = $("#hid" + index).val();
+            //取消关注
+            $.post("/user/home/modifyRelation", {uid: uid, rid: rid, status: 0}, function (data) {
+                if (data.status === 2008) {
+                    //取消成功则删除该行
+                    $("#" + index).remove();
+                    var total = parseInt($("#myIdol").text()) - 1;
+                    $("#myIdol").text(total);
+                    layer.msg(data.message);
+                    if (index === 0) {
+                        //如果删除的是第一个则返回到第一页，防止只有条时删除为空。
+                        getUserInfoList('idolPage', 1, 'idols');
+                        console.info(total);
+                        laypage.render({
+                            elem: 'idolPage'
+                            , count: total
+                            , curr: 1
+                            , limit: 10
+                            , first: false
+                            , last: false
+                            , theme: '#1E9FFF'
+                            , jump: function (obj, first) {
+                                if (!first) {
+                                    getUserInfoList(obj.elem, obj.curr, 'idols');
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    //异常返回
+                    layer.msg(data.message);
+                }
+            });
+        }
+    })
+
+    layui.use(['laypage', 'layer'], function () {
+        var laypage = layui.laypage
+            , layer = layui.layer;
+        //自定义首页、尾页、上一页、下一页文本
+        laypage.render({
+            elem: 'idolPage'
+            , count: [[${idolTotal}]]
+            , curr: 1
+            , limit: 10
+            , first: false
+            , last: false
+            , theme: '#1E9FFF'
+            , jump: function (obj, first) {
+                if (!first) {
+                    getUserInfoList(obj.elem, obj.curr, 'idols');
+                }
+            }
+        });
+        laypage.render({
+            elem: 'fansPage'
+            , count: [[${fansTotal}]]
+            , curr: 1
+            , limit: 10
+            , first: false
+            , last: false
+            , theme: '#1E9FFF'
+            , jump: function (obj, first) {
+                if (!first) {
+                    getUserInfoList(obj.elem, obj.curr, 'fans');
+                }
+            }
+        });
+    });
+
+    function getUserInfoList(type, curr, id) {
+        //获取页面
+        $.post("/user/relation/page", {"type": type, "currentPage": curr}, function (data) {
+            var userInfoList = data.userInfoList;
+            $("#" + id).empty();
+            for (var i = 0; i < userInfoList.length; i++) {
+                var userInfo = userInfoList[i];
+                var renzheng = '';
+                var sexLabel = '';
+                var vip = '';
+                var signature = '';
+                var button = '';
+                var iid = '';
+                if (id === 'idols') {
+                    iid = 'id=' + i;
+                    button = "    <span style=\"position: absolute; right: 0; top: 22px; padding-right: 0!important;\">\n" +
+                        "        <button class=\"layui-btn fly-imActive\"\n" +
+                        "                style=\"background-color:#646973\" relation=\"true\"\n" +
+                        "               onclick=\"modifyRelation(" + i + ")\">取消关注\n" +
+                        "        </button>\n" +
+                        "     </span>";
+                }
+                if (userInfo.authority === 3) {
+                    renzheng = '认证信息：程序员小哥哥';
+                    vip = '<i class="layui-badge fly-badge-vip"">VIP3</i>';
+                } else if (userInfo.authority === 2) {
+                    renzheng = '认证信息：管理员大大';
+                } else if (userInfo.authority === 1) {
+                    if (userInfo.sex === 1) {
+                        renzheng = '认证信息：社区靓仔';
+                    } else if (userInfo.sex === 2) {
+                        renzheng = '认证信息：社区靓妹';
+                    }
+                }
+                if (userInfo.sex === 1) {
+                    sexLabel = '<i class="iconfont icon-nan" style="color: #4EBBF9"></i>';
+                } else if (userInfo.sex === 2) {
+                    sexLabel = '<i class="iconfont icon-nv" style="color: #F581B1"></i>';
+                }
+                if (userInfo.signature === '') {
+                    signature = '这个人懒得留下签名';
+                } else {
+                    if (getLength(userInfo.signature) > 30) {
+                        signature = userInfo.signature.toString().substr(14) + '...';
+                    } else {
+                        signature = userInfo.signature;
+                    }
+                }
+                //粉丝列表
+                $("#" + id).append("<li " + iid + "><input type='hidden' id='hid" + i + "' value='" + userInfo.uidStr + "'><a href='/user/home/" + userInfo.uidStr + "' class='fly-avatar'><img src='" + userInfo.avatar + "' alt='" + userInfo.nickName + "'></a><div><div class='fly-list-info'><a href='/user/home/" + userInfo.uidStr + "' link><b style='font-size: 15px;color: black'>" + userInfo.nickName + "</b>&nbsp;<i class='iconfont icon-renzheng' title='" + renzheng + "'></i>&nbsp;" + sexLabel + "&nbsp;" + vip + "</a></div><p><span style='color: #999999'>" + signature + "</span></p>" + button + "</div></li>")
+            }
+        })
+    }
+</script>
+
+
+</body>
+</html>

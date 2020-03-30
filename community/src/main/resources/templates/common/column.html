@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<div class="fly-panel fly-column" th:fragment="index-column">
+    <div class="layui-container">
+        <ul class="layui-clear">
+            <li th:class="${active =='/index'?'layui-hide-xs layui-this':''}"><a th:href="@{/index.html}">首页</a></li>
+            <li th:class="${active =='/blog/index'?'layui-hide-xs layui-this':''}"><a th:href="@{/blog/index/1}">看帖</a></li>
+            <li th:class="${active =='/blog/boutique'?'layui-hide-xs layui-this':''}"><a th:href="@{/blog/boutique/1}">精贴</a></li>
+            <li th:class="${active =='/blog/announcement'?'layui-hide-xs layui-this':''}"><a th:href="@{/blog/announcement/1}">公告<span class="layui-badge-dot"></span></a></li>
+            <li th:if="${session.loginUser!=null}" th:class="${active =='/blog/relation'?'layui-hide-xs layui-this':''}"><a th:href="@{/blog/relation/1}">好友动态</a></li>
+            <li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block" th:if="${session.loginUser!=null}"><span class="fly-mid"></span></li>
+            <!-- 用户登入后显示 ,上面哪个<li>为分割线-->
+            <li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block" th:if="${session.loginUser!=null}"><a th:href="@{/user/index}">我发表的贴</a>
+            </li>
+        </ul>
+        <div class="fly-column-right layui-hide-xs">
+            <span class="fly-search"><i class="layui-icon"></i></span>
+            <a th:href="@{/blog/add}"  class="layui-btn layui-btn-normal">发表新帖</a>
+        </div>
+        <div class="layui-hide-sm layui-show-xs-block"
+             style="margin-top: -10px; padding-bottom: 10px; text-align: center;">
+            <a th:href="@{/blog/add}"  class="layui-btn layui-btn-normal">发表新帖</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>郁郁苍苍|让世间美好与你环环相扣</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="郁郁苍苍,Share,分享,生活,快乐,让世间美好与你环环相扣">
+    <meta name="time" content="写自于2020年一个雪虐风饕的晚上">
+    <meta name="description" content="乐人之乐,人亦乐其乐;忧人之忧,人亦忧其忧。郁郁苍苍 一个可以分享心情,分享时光,分享生活点滴的社交平台">
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="bookmark" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/layui/css/modules/layer/default/layer.css}">
+</head>
+
+<body>
+<!--引入上边栏-->
+<div th:replace="~{common/header::head}"></div>
+<div class="layui-hide-xs">
+    <!--引入公共行-->
+    <div th:replace="~{common/column::index-column}"></div>
+</div>
+<div class="layui-container">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8 content detail">
+            <div class="fly-panel detail-box">
+                <h1 th:utext="${blog.getTitle()}"></h1>
+                <div class="fly-detail-info">
+                    <!-- <span class="layui-badge">审核中</span> -->
+                    <span class="layui-badge layui-bg-green fly-detail-column"
+                          th:text="${blog.getArticleType()!=2 ? '动态':'公告'}">动态</span>
+                    <span id="topBlog">
+                    <span class="layui-badge layui-bg-black" th:if="${blog.getTop()==1}">置顶</span>
+                    </span>
+                    <span id="boutiqueBlog">
+                    <span class="layui-badge layui-bg-red" th:if="${blog.getArticleType()==1}">精帖</span>
+                    </span>
+                    <span th:if="${session.loginUser!= null && blog.getUid() == session.loginUser.getUid()}">
+                        &nbsp;&nbsp;&nbsp;&nbsp; <span class="layui-btn layui-btn-xs  jie-admin"
+                                                       th:if="${session.loginUser!=null} and ${session.loginUser.getAuthority()!=2}"
+                                                       th:onclick="delBlog([[${blog.getAid()}]])">删除</span>
+                    </span>
+                    <!-- 管理员权限-->
+                    <div class="fly-admin-box"
+                         th:if="${session.loginUser!=null} and ${session.loginUser.getAuthority() == 2}">
+                        <button class="layui-btn layui-btn-xs jie-admin" th:onclick="delBlog([[${blog.getAid()}]])">删除
+                        </button>
+                        <button onclick="topBlog()" class="layui-btn layui-btn-xs jie-admin"
+                                id="top" th:data-top="${ blog.getTop() == 1 } ? 'true' : 'false'"
+                                style=" visibility: visible" th:text="${ blog.getTop() == 1 } ? '取消置顶':'置顶'">置顶
+                        </button>
+                        <button onclick="boutiqueBlog()" class="layui-btn layui-btn-xs jie-admin"
+                                id="boutique" th:if="${blog.getArticleType()!=2}" th:data-boutique="${ blog.getArticleType() == 1 } ? 'true' : 'false'"
+                                style=" visibility: visible" th:text="${ blog.getArticleType() == 1 } ? '取消加精':'加精'">加精
+                        </button>
+                    </div>
+                    <span class="fly-list-nums">
+            <a href="#comment"><i class="iconfont" title="回帖">&#xe60c;</i>[[${blog.getCommentNum()}]]</a>
+            <i class="iconfont" title="人气">&#xe60b;</i> [[${blog.getBrowseNum()}]]
+          </span>
+                </div>
+                <div class="detail-about">
+                    <a th:href="@{'/user/home/'+${blog.getUid()}}" class="fly-avatar">
+                        <img th:src="@{${blog.getAvatar()}}"
+                             th:alt="${blog.getNickname()}">
+                    </a>
+                    <div class="fly-detail-user">
+                        <a th:href="@{'/user/home/'+${blog.getUid()}}" link>
+                            <cite>[[${blog.getNickname()}]]</cite>
+                            <i class="layui-badge fly-badge-vip" id="bRank">VIP3</i>
+                            <input type="hidden" th:value="${blog.getExp()}" id="bExp">
+                        </a>
+                    </div>
+                    <div class="detail-hits" id="LAY_jieAdmin">
+                        <span>[[${#dates.format( blog.getCreateTime(), 'yyyy-MM-dd HH:mm')}]]</span>
+                        <span class=" layui-btn-xs jie-admin"></span>
+                    </div>
+                </div>
+                <div class="layui-btn-container"
+                     style="padding-top: 10px; text-align: right; border-top: 1px dotted #EAEAEA; background-color: #f8f8f8;">
+                    <button onclick="collect()"
+                            th:class="${ collectBlogTotal == 1 } ? 'layui-btn layui-btn-sm jie-admin jie-admin-collect layui-btn-primary' : 'layui-btn layui-btn-danger layui-btn-sm jie-admin jie-admin-collect'"
+                            id="collect" th:data-collect="${ collectBlogTotal == 1 } ? 'true' : 'false'"
+                            style=" visibility: visible" th:text="${ collectBlogTotal == 1 } ? '取消收藏':'收藏'">收藏
+                    </button>
+                </div>
+                <div class="detail-body photos">
+                    <input type="hidden" id="blogId" name="aid" th:value="${blog.getAid()}">
+                    <!--      th:utext显示html标签  文本内容-->
+                    <div th:utext="${blog.getContent()}"></div>
+                </div>
+            </div>
+            <div class="fly-panel detail-box" id="flyReply" th:if="${blog.getReviewStatus() == 1}">
+                <fieldset class="layui-elem-field layui-field-title" style="text-align: center;">
+                    <legend>最近回帖</legend>
+                </fieldset>
+                <ul class="jieda" id="jieda">
+                    <li th:id="${commentStat.index}" th:each="comment:${commentList}">
+                        <input id="arrayLength" type="hidden" th:value="${#arrays.length(commentList)}">
+                        <input th:id="'commentId'+${commentStat.index}" type="hidden" th:value="${comment.getId()}">
+                        <a name="item"></a>
+                        <div class="detail-about detail-about-reply">
+                            <a th:href="@{'/user/home/'+${comment.getUid()}}" class="fly-avatar">
+                                <img th:src="@{${comment.getAvatar()}}"
+                                     th:alt="${comment.getNickname()}">
+                            </a>
+                            <div class="fly-detail-user">
+                                <a th:href="@{'/user/home/'+${comment.getUid()}}" link>
+                                    <cite>[[${comment.getNickname()}]]</cite>
+                                </a>
+
+                                <span th:if="${comment.getUid()==blog.getUid().toString()}">
+                                    <span class="layui-badge layui-bg-blue">楼主</span>
+                                </span>
+                            </div>
+                            <input th:id="'date'+${commentStat.index}" type="hidden"
+                                   th:value="${comment.getCreateTime()}">
+                            <span th:id="'time'+${commentStat.index}">[[${#dates.format(comment.getCreateTime(), 'MM-dd HH:mm')}]]</span>
+                        </div>
+                        <div class="detail-body jieda-body photos">
+                            <p th:utext="${comment.getContent()}">评论内容</p>
+                        </div>
+                        <div class="jieda-reply">
+               <span th:class="${comment.getStatus() == 1 } ? 'jieda-zan  zanok' : 'jieda-zan'"
+                     th:id="'style'+${commentStat.index}" type="zan">
+                   <i class="iconfont icon-zan" th:data-like="${comment.getStatus() == 1 } ? 'true' : 'false'"
+                      th:onclick="likeMark([[${commentStat.index}]]) " th:id="'love'+${commentStat.index}"></i>
+                   <em th:id="'love_Num'+${commentStat.index}"
+                       th:text="${comment.getLoveNum() == null} ? '0' : ${comment.getLoveNum()}"></em>
+               </span>
+                            <span type="reply"
+                                  th:onclick="replyComment([[${''+comment.getUid()}]],[[${comment.getNickname()}]])">
+                <i class="iconfont icon-svgmoban53"></i>
+                    <a href="#edit" style="color:#999999;">回复</a>
+              </span>
+                            <div class="jieda-admin" th:if="${session.loginUser != null}">
+                                <span type="delComment"
+                                      th:if="${blog.getUid().toString() == session.loginUser.getUid().toString() || comment.getUid() == session.loginUser.getUid().toString()}"
+                                      th:onclick="delComment([[${comment.getId()}]],[[${commentStat.index}]])">删除</span>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- 无数据时 -->
+                    <li id="noReply" class="fly-none" th:if="${total} == 0">现在还没人，赶紧占个一楼</li>
+                </ul>
+                <!--跳到编辑的地方-->
+                <a name="edit"></a>
+                <div style="border-top: 1px dotted #e2e2e2; text-align: center;">
+                    <!--分页   th:if="!${#arrays.isEmpty(commentList)}"-->
+                    <div id="demo4"></div>
+                </div>
+                <div class="layui-form layui-form-pane">
+                    <form method="post">
+                        <div id="reviewUser">
+                        </div>
+                        <div class="layui-form-item layui-form-text">
+                                <textarea id="L_review" required lay-verify="comment" style="display: none;"
+                                          placeholder="请输入内容"></textarea>
+                        </div>
+                        <div class="layui-form-item">
+                            <input type="hidden" name="aid" th:value="${blog.getAid()}">
+                            <!--  文章博主id-->
+                            <input type="hidden" name="auid" th:value="${blog.getUid()}">
+                            <button class="layui-btn layui-btn-danger" lay-filter="review" lay-submit type="button">
+                                提交回复
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="fly-panel detail-box" th:if="${blog.getReviewStatus() == 0}">
+                <fieldset class="layui-elem-field layui-field-title" style="text-align: center;">
+                    <legend>本贴设置禁止评论</legend>
+                </fieldset>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <!--本周热议 -->
+            <div th:replace="~{common/hotspot::hotspot}"></div>
+            <!--            广告模块-->
+            <div th:replace="~{common/ad::ad}"></div>
+
+            <div class="fly-panel" style="padding: 20px 0; text-align: center;">
+                <img th:src="@{/images/qq.jpg}" style="height: 258px; width: 258px" alt="share">
+
+                <p style="position: relative; color: #666;"><br/>扫码加入社区交流群</p>
+            </div>
+            <!--            友情链接-->
+            <div th:replace="~{common/link::link}"></div>
+        </div>
+    </div>
+</div>
+<!--页面底部-->
+<div th:replace="~{common/footer::foot}"></div>
+<script th:src="@{/js/mods/detail.js}"></script>
+<script th:inline="javascript" type="text/javascript">
+
+    layui.use(['laypage', 'layer', 'form', 'jquery', 'layedit'], function () {
+        var $ = layui.$;
+        var form = layui.form;
+        var layedit = layui.layedit;
+        var laypage = layui.laypage;
+        var layer = layui.layer;
+        var uid = $("#uid").val();
+        var rid = '';
+        var rname = '';
+//建立编辑器
+        var contentIndex = layedit.build('L_review', {
+            height: 150,  //设置编辑器高度
+            tool: [
+                'face' //插入表情
+                , '|' //分割线
+                , 'strong' //加粗
+                , 'italic' //斜体
+                , 'underline' //下划线
+            ]
+        });
+        form.verify({
+            comment: function (value) {
+                layedit.sync(contentIndex); //数据同步到表单中
+                var imgReg = /<img.*?(?:>|\/>)/gi;//匹配<img>标签
+                var content = layedit.getContent(contentIndex);//文章的html形式
+                var text = layedit.getText(contentIndex).trim();//文章的纯文本
+                //用于判断是否了表情
+                var match = content.match(imgReg);
+                if (uid == null) {
+                    return '亲,登录后才能评论哦';
+                }
+                if (text === '' && match == null) {
+                    return '评论内容不能为空哦';
+                }
+                var length = getLength(text);
+                if (length > 200) {
+                    return '内容字数太多了哦';
+                }
+            }
+        });
+        form.on('submit(review)', function (data) {
+            var name = rname;
+            var id = rid;
+            var review = '';
+            //去除恶意换行符
+            var content = layedit.getContent(contentIndex).replace(/<br>/ig, '');
+            if (id != null && id !== '') {
+                review = "<a href='/user/home/" + id + "' target='_blank'>@" + name + "</a>";
+                //接受人id
+                data.field.rid = id;
+            }
+            data.field.content = review + utf16toEntities(content); //获取编译器内容，并赋值给content
+            //发送者id
+            data.field.uid = uid;
+            $.ajax({
+                url: "/user/review",
+                type: "post",
+                async: false,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(data.field),
+                dataType: "json",
+                success: function (data) {
+                    if (data.status === 3003) {
+                        layer.msg(data.message, {time: 2000, icon: 6});
+                        layedit.setContent(contentIndex, '');
+                        closeComment();
+                        getComment();
+                    } else {
+                        layer.msg(data.message, {time: 2000, icon: 5, shift: 6});
+                    }
+                },
+                error: function (data) {
+                    layer.msg(data.message, {time: 2000, icon: 5, shift: 6});
+                }
+            });
+        });
+        //自定义首页、尾页、上一页、下一页文本
+        laypage.render({
+            elem: 'demo4'
+            , count: [[${total}]]
+            , curr: [[${currentPage}]]
+            , limit: 10
+            , first: false
+            , last: false
+            , theme: '#1E9FFF'
+            , jump: function (obj, first) {
+                if (!first) {
+                    window.location.href = "/blog/detail/" + [[${blog.getAid()}]] + "/page/" + obj.curr;
+                }
+            }
+        });
+
+        //异步更新评论
+        function getComment() {
+            $.ajax({
+                url: "/user/comment/" + [[${blog.getAid()}]] + "/" + [[${currentPage}]],
+                type: "post",
+                async: false,
+                contentType: "application/json; charset=utf-8",
+                data: {},
+                dataType: "json",
+                success: function (data) {
+                    var commentList = data.commentList;
+                    //先清除里面旧内容
+                    $("#jieda").empty();
+                    //刷新分页
+                    laypage.render({
+                        elem: 'demo4'
+                        , count: data.total
+                        , curr: data.currentPage
+                        , limit: 10
+                        , first: false
+                        , last: false
+                        , theme: '#1E9FFF'
+                        , jump: function (obj, first) {
+                            if (!first) {
+                                window.location.href = "/blog/detail/" + [[${blog.getAid()}]] + "/page/" + obj.curr;
+                            }
+                        }
+                    });
+                    for (var i = 0; i < data.commentList.length; i++) {
+                        var comment = commentList[i];
+                        var createTime = comment.createTime;
+                        var date = new Date(createTime);
+                        var time = date.getTime();
+                        var role = '';
+                        var loveStyle = 'jieda-zan';
+                        var commentStatus = 'false';
+                        var name = '"' + comment.nickname + '"';
+                        var cuid = '"' + comment.uid + '"';
+                        //用于拼接删除的span标签
+                        var delComment = '';
+                        console.info(comment.uid)
+                        console.info(uid)
+                        if (uid === comment.uid) {
+                            role = '<span class="layui-badge layui-bg-blue">楼主</span>';
+                        }
+                        if (comment.status === 1) {
+                            loveStyle = 'jieda-zan  zanok';
+                            commentStatus = 'true';
+                        }
+                        if (comment.loveNum == null) {
+                            comment.loveNum = 0;
+                        }
+                        if ([[${blog.getUid()}]] === uid.toString() || comment.uid === uid.toString()) {
+                            delComment = '<span type="delComment" onclick="delComment(' + comment.id + ',' + i + ')">删除</span>';
+                        }
+                        //拼接新的html
+                        $("#jieda").append("<li id=" + i + "><input id='arrayLength' type='hidden' value='" + data.commentList.length + "'><input id='commentId" + i + "' type='hidden' value='" + comment.id + "'><a name='item'></a><div class='detail-about detail-about-reply'><a class=\"fly-avatar\" href=/user/home/" + comment.uid + " ><img src=" + comment.avatar + " alt=" + comment.nickname + "></a><div class=\"fly-detail-user\"><a href='/user/home/'" + comment.uid + " link><cite>" + comment.nickname + "<cite></a><span>" + role + "</span></div><span>" + beautify_time(time) + "</span></div><div class='detail-body jieda-body photos'><p>" + comment.content + "</p></div><div class='jieda-reply'><span class='" + loveStyle + "' id='style" + i + "' type='zan'><i class='iconfont icon-zan' data-like='" + commentStatus + "' onclick='likeMark(" + i + ")' id='love" + i + "'></i><em id='love_Num" + i + "'>" + comment.loveNum + "</em></span><span type='reply' onclick='replyComment(" + cuid + "," + name + ")'><i class='iconfont icon-svgmoban53'></i><a href='#edit' style='color: #999999;'>回复</a></span><div class='jieda-admin'>" + delComment + "</div></div></li>");
+                    }
+                },
+                error: function (data) {
+                    //    暂不处理
+                    layer.msg("服务器正在重启！", {time: 2000, icon: 5, shift: 6});
+                }
+            });
+        }
+
+        //回复评论人
+        window.replyComment = function (uid, nickname) {
+            rid = uid;
+            rname = nickname;
+            //支持@一人回复，并且必须保持抬头第一个
+            $("#reviewUser").empty();
+            $("#reviewUser").append("                            \n" +
+                "                        <div  id=\"L_id\" name='lid' value='" + rid + "' class=\"reviewInfo\"  style=\"display: block\">\n" +
+                "                            <div id=\"L_addressee\"  value='" + rname + "' style=\"color: #4f99cf;\">\n" +
+                "                                   @" + rname + "\n" +
+                "                            </div>\n" +
+                "                            <div style=\"position: absolute;cursor:pointer;right: 5px;top: 5px;width: 20px;text-align:center;height: 25px;line-height: 25px;\" class=\"layui-icon close layui-icon-close\" onclick=\"closeComment()\"></div>\n" +
+                "                        </div>");
+        };
+        //关闭 回复评论人
+        window.closeComment = function () {
+            $("#reviewUser").empty();
+            rid = '';
+            rname = '';
+        };
+        //删除评论
+        window.delComment = function (acid, index) {
+            var id = '#' + index;
+            layer.confirm('您确定要删除这条评论？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                //确定
+                $.post("/user/comment/del", {"acid": acid}, function (data) {
+                    if (data.status === 3008) {
+                        layer.msg(data.message);
+                        /*                        //清空对应id的信息
+                                                $(id).remove();*/
+                        if (index === 0) {
+                            window.location.href = "/blog/detail/" + [[${blog.getAid()}]] + "/page/" + 1;
+                        }
+                        //删除后直接更新评论
+                        getComment();
+                    } else {
+                        //异常返回
+                        layer.msg(data.message);
+                    }
+                })
+            }, function () {
+                //取消
+            });
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org">
+<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0" th:fragment="foot">
+    <div class="fly-footer">
+        <p><a th:href="@{#}" target="_blank">yuyucangcang.cn</a>&copy;2020<a th:href="@{#}"  target="_blank">郁郁苍苍 版权所有</a></p>
+        <p><span>感谢'苍苍'大力赞助<i class="layui-icon layui-icon-heart-fill layui-icon-face-smile" style="color: red;"></i> </span><a href="http://www.beian.miit.gov.cn/" target="_blank">鄂ICP备20002064号</a></p>
+    </div>
+    <ul class="layui-fixbar">
+        <li th:if="${session.loginUser!=null}" class="layui-icon" lay-type="bar1" onclick="window.location.href='/blog/add'" style="background-color:#9F9F9F"></li>
+        <li class="layui-icon layui-fixbar-top" lay-type="top" onclick='$("html,body").animate({"scrollTop":0});'
+            style="background-color: rgb(159, 159, 159); display: list-item;">
+        </li>
+    </ul>
+    <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+    <script th:src="@{/layui/layui.js}"></script>
+    <!--  用于显示二级菜单栏  等其他补充功能-->
+    <script th:src="@{/js/mods/foot.js}"></script>
+</nav>

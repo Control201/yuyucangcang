@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<!--暂时弃用-->
+<!--在th：replace  ，insert标签体中  不插入其他部分，只能插入title  link标签属性对其替换，-->
+<!--登录后用户界面-->
+<nav class="layui-container fly-marginTop fly-user-main" th:fragment="login-user">
+  <!--登录后的-用户左边栏-->
+  <ul class="layui-nav layui-nav-tree layui-inline" lay-filter="user">
+    <li class="layui-nav-item">
+      <a th:href="@{/user/home}">
+        <i class="layui-icon">&#xe609;</i>
+        我的主页
+      </a>
+    </li>
+    <li class="layui-nav-item layui-this">
+      <a th:href="@{/user/index}">
+        <i class="layui-icon">&#xe60a;</i>
+        我的帖子
+      </a>
+    </li>
+    <li class="layui-nav-item">
+      <a th:href="@{'/user/set/'+${session.loginUser.getUid()}}">
+        <i class="layui-icon">&#xe620;</i>
+        基本设置
+      </a>
+    </li>
+    <li class="layui-nav-item">
+      <a th:href="@{/user/message}">
+        <i class="layui-icon">&#xe611;</i>
+        我的消息
+      </a>
+    </li>
+  </ul>
+  <div class="site-tree-mobile layui-hide">
+    <i class="layui-icon">&#xe602;</i>
+  </div>
+  <div class="site-mobile-shade"></div>
+
+  <div class="site-tree-mobile layui-hide">
+    <i class="layui-icon">&#xe602;</i>
+  </div>
+  <div class="site-mobile-shade"></div>
+
+</nav>

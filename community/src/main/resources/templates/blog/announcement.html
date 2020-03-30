@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>郁郁苍苍|让世间美好与你环环相扣</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="郁郁苍苍,Share,分享,生活,快乐,让世间美好与你环环相扣">
+    <meta name="time" content="写自于2020年一个雪虐风饕的晚上">
+    <meta name="description" content="乐人之乐,人亦乐其乐;忧人之忧,人亦忧其忧。郁郁苍苍 一个可以分享心情,分享时光,分享生活点滴的社交平台">
+    <link rel="icon" th:href="@{/favicon.ico}"  type="image/x-icon"/>
+    <link rel="bookmark" th:href="@{/favicon.ico}"  type="image/x-icon"/>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/layui/css/modules/layer/default/layer.css}">
+</head>
+<body>
+
+
+<!--引入上边栏-->
+<div th:replace="~{common/header::head}"></div>
+<!--引入公共行-->
+<div th:replace="~{common/column::index-column (active='/blog/announcement')}"></div>
+
+<div class="layui-container">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="fly-panel" style="margin-bottom: 0;">
+                <div class="fly-panel-title fly-filter">
+                    <a href="" class="layui-this">综合</a>
+                </div>
+                <ul class="fly-list">
+                    <li th:each="article:${articleList}">
+                        <a th:href="@{'/user/home/'+${article.getUid()}}" class="fly-avatar">
+                            <img th:src="@{${article.getAvatar()}}"
+                                 th:alt="${article.getNickname()}">
+                        </a>
+                        <h2>
+                            <a class="layui-badge" th:if="${article.getArticleType()!=2}">动态</a>
+                            <a class="layui-badge" th:if="${article.getArticleType()==2}">公告</a>
+                            <a th:href="@{'/blog/detail/'+${article.getAid()}}" th:utext="${article.getTitle()}"></a>
+                        </h2>
+                        <div class="fly-list-info">
+                            <a th:href="@{'/user/home/'+${article.getUid()}}" link>
+                                <cite>[[${article.getNickname()}]]</cite>
+                                <!--
+                                <i class="iconfont icon-renzheng" title="认证信息：XXX"></i>
+                                <i class="layui-badge fly-badge-vip">VIP3</i>
+                                -->
+                            </a>
+                            <!--  根据时间判断显示方式-->
+                            <span th:if="${time}==${#dates.format( article.getCreateTime(), 'MM-dd')}">[[${#dates.format( article.getCreateTime(), 'HH:mm')}]]</span>
+                            <span th:if="${time}!=${#dates.format( article.getCreateTime(), 'MM-dd')}">[[${#dates.format( article.getCreateTime(), 'MM-dd')}]]</span>
+                            <span class="fly-list-nums">
+                <i class="iconfont icon-pinglun1" title="回复"></i>[[${article.getCommentNum()}]]
+              </span>
+                        </div>
+                        <div class="fly-list-badge" th:if="${article.getArticleType()==1}">
+                            <span class="layui-badge layui-bg-red">精帖</span>
+                        </div>
+                    </li>
+                </ul>
+                <div class="fly-none" th:if="${#arrays.isEmpty(articleList)}">亲，帖子已经翻到底了哦！</div>
+                <div style="border-top: 1px dotted #e2e2e2; text-align: center;">
+                    <!--分页-->
+                    <div id="demo4"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="layui-col-md4">
+            <!--本周热议 -->
+            <div th:replace="~{common/hotspot::hotspot}"></div>
+
+            <!--            广告模块-->
+            <div th:replace="~{common/ad::ad}"></div>
+            <!--            友情链接-->
+            <div th:replace="~{common/link::link}"></div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!--页面底部-->
+<div th:replace="~{common/footer::foot}"></div>
+
+<script th:inline="javascript">
+    layui.use(['laypage', 'layer'], function () {
+        var laypage = layui.laypage
+            , layer = layui.layer;
+        //自定义首页、尾页、上一页、下一页文本
+        laypage.render({
+            elem: 'demo4'
+            , count:[[${total}]]
+            , curr: [[${currentPage}]]
+            , first: false
+            , last: false
+            ,theme: '#1E9FFF'
+            ,jump:function (obj,first) {
+                if (!first){
+                    window.location.href="/blog/noReply/"+obj.curr;
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

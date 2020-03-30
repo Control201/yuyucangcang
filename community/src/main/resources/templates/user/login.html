@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>登入</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="郁郁苍苍,Share,分享,生活,快乐,让世间美好与你环环相扣">
+    <meta name="time" content="写自于2020年一个雪虐风饕的晚上">
+    <meta name="description" content="乐人之乐,人亦乐其乐;忧人之忧,人亦忧其忧。郁郁苍苍 一个可以分享心情,分享时光,分享生活点滴的社交平台">
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="bookmark" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/layui/css/modules/layer/default/layer.css}">
+</head>
+<body>
+<!--引入上边栏-->
+<div th:replace="~{common/header::head}"></div>
+<div class="layui-container fly-marginTop">
+    <div class="fly-panel fly-panel-user" pad20>
+        <div class="layui-tab layui-tab-brief" lay-filter="user">
+            <ul class="layui-tab-title">
+                <li class="layui-this">登入</li>
+                <li><a th:href="@{/user/reg}">注册</a></li>
+            </ul>
+            <div class="layui-form layui-tab-content" id="LAY_ucm" style="padding: 20px 0;">
+                <div class="layui-tab-item layui-show">
+                    <div class="layui-form layui-form-pane">
+                        <form method="post" th:action="@{/user/login}">
+                            <div class="layui-form-item">
+                                <label for="L_email" class="layui-form-label">邮箱</label>
+                                <div class="layui-input-inline parentCls">
+                                    <input type="text" id="L_email" name="username" required lay-verify="required|email"
+                                            placeholder="请输入您的邮箱" class="layui-input inputElem">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label for="L_pass" class="layui-form-label">密码</label>
+                                <div class="layui-input-inline">
+                                    <input type="password" id="L_pass" name="password" required
+                                           lay-verify="required|pass" autocomplete="off" placeholder="请输入您的密码"
+                                           class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label for="L_vercode" class="layui-form-label">验证码</label>
+                                <div class="layui-input-inline" style="padding-bottom: 0.3cm">
+                                    <input type="text" id="L_vercode" name="verCode" required
+                                           lay-verify="required|verCode" placeholder="请输入验证码" autocomplete="off"
+                                           class="layui-input">
+                                </div>
+                                <div class="layui-form-mid" style="padding: 0!important;">
+                                    <img th:src="@{/user/captcha}" id="imageCode" width="130px" height="48px" alt="验证码"
+                                         onclick="refresh()" title="点击刷新一下"
+                                         style="position: relative; margin-top: -10px;cursor: pointer;"/>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label" style="padding: 8px 10px;">下次自动登录</label>
+                                <div class="layui-input-block">
+                                    <input type="checkbox"  id="rememberMe"  checked="" name="rememberMe" lay-skin="switch" lay-filter="switchTest" lay-text="记住我|不记住"><div class="layui-unselect layui-form-switch layui-form-onswitch" lay-skin="_switch"><em>记住</em><i></i></div>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <button class="layui-btn layui-btn-danger" id="dologin_btn" lay-filter="*" lay-submit
+                                        type="button">
+                                    立即登录
+                                </button>
+                                <span style="padding-left:20px;">
+                                <a th:href="@{/user/forget}">忘记密码？</a>
+                                </span>
+                            </div>
+                            <div class="layui-form-item fly-form-app">
+                                <span>或者使用社交账号登入</span>
+                                <a href="#" onclick="layer.msg('小的，还在和腾讯协商授权呢', {icon:5, time:3000})"
+                                   class="iconfont icon-qq" title="QQ登入"></a>
+                                <a href="#" onclick="layer.msg('小的，还在和新浪协商授权呢', {icon:5, time:3000})"
+                                   class="iconfont icon-weibo" title="微博登入"></a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--页面底部-->
+<div th:replace="~{common/footer::foot}"></div>
+<script th:src="@{/js/mods/login.js}"></script>
+</body>
+</html>

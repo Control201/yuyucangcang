@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>用户主页</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="郁郁苍苍,Share,分享,生活,快乐,让世间美好与你环环相扣">
+    <meta name="time" content="写自于2020年一个雪虐风饕的晚上">
+    <meta name="description" content="乐人之乐,人亦乐其乐;忧人之忧,人亦忧其忧。郁郁苍苍 一个可以分享心情,分享时光,分享生活点滴的社交平台">
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="bookmark" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/layui/css/modules/layer/default/layer.css}">
+</head>
+<body style="margin-top: 65px;">
+<!--引入上边栏-->
+<div th:replace="~{common/header::head}"></div>
+<!--页面中间-->
+<div class="fly-home fly-panel">
+    <img th:src="${UserInfo.getAvatar()}" alt="头像">
+    <input type="hidden" id="hid" th:value="${UserInfo.getUid()}">
+    <i class="iconfont icon-renzheng" title="Share社区认证"></i>
+    <input id="homeNickName" type="hidden" th:value="${UserInfo.getNickName()}">
+    <h1>
+        [[${UserInfo.getNickName()}]]
+        <i class="iconfont icon-nan" th:if="${UserInfo.getSex()==1}"></i>
+        <i class="iconfont icon-nv" th:if="${UserInfo.getSex()==2}"></i>
+
+        <i class="layui-badge fly-badge-vip" id="hRank">VIP3</i>
+        <input type="hidden" th:value="${UserInfo.getExp()}" id="hExp">
+    </h1>
+    <p style="padding: 10px 0; color: #5FB878;" th:if="${UserInfo.getAuthority()==3}">认证信息：程序员小哥哥</p>
+    <p style="padding: 10px 0; color: #5FB878;" th:if="${UserInfo.getAuthority()==2}">认证信息：管理员大大</p>
+    <p style="padding: 10px 0; color: #5FB878;" th:if="${UserInfo.getAuthority()==1}">[[${UserInfo.getSex()==1} ?
+        '认证信息：社区靓仔' : '认证信息：社区靓妹']] </p>
+    <p class="fly-home-info">
+        <!--  <i class="iconfont icon-kiss" title="飞吻"></i><span style="color: #FF7200;">66666 飞吻</span>-->
+        <i class="iconfont icon-shijian"></i><span>[[${#dates.format(UserInfo.getCreateTime(), 'yyyy-MM-dd')}]] 加入</span>
+        <i class="iconfont icon-chengshi"></i><span>来自[[${UserInfo.getLocation()==''}?'喵星球':${UserInfo.getLocation()}]]</span>
+    </p>
+    <p class="fly-home-sign" th:utext="${UserInfo.getSignature()==''}?'这个人懒得留下签名':${UserInfo.getSignature()}"></p>
+    <div class="fly-sns" th:if="${session.loginUser == null || session.loginUser.getUid()!=UserInfo.getUid()}">
+        <button class="layui-btn layui-btn-danger fly-imActive" id="modifyRelation" th:if="${relation == null }"
+                relation="false"
+                onclick="modifyRelation()"><em style="margin:0 4px 0 0px;">+</em>关注
+        </button>
+        <button class="layui-btn fly-imActive" id="modifyRelation" style="background-color:#646973"
+                th:if="${relation != null}" relation="true"
+                onclick="modifyRelation()">取消关注
+        </button>
+        <button class="layui-btn layui-btn-normal fly-imActive" id="chat" data-type="chat"
+                onclick="chat()">私信
+        </button>
+    </div>
+</div>
+
+<div class="layui-container">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md6 fly-home-jie">
+            <div class="fly-panel">
+                <h3 class="fly-panel-title"> [[${UserInfo.getNickName()}]] 最近的动态</h3>
+                <ul class="jie-row">
+                    <li th:each="article:${articleList}">
+                        <span class="fly-jing" th:if="${article.getArticleType()==1}">精</span>
+                        <a th:href="@{'/blog/detail/'+${article.getAid()}}" th:utext="${article.getTitle()}"></a>
+                        <!--  根据时间判断显示方式-->
+                        <i th:if="${time}==${#dates.format( article.getCreateTime(), 'yyyy-MM-dd')}">[[${#dates.format(
+                            article.getCreateTime(), 'HH:mm')}]]</i>
+                        <i th:if="${time}!=${#dates.format( article.getCreateTime(), 'yyyy-MM-dd')}">[[${#dates.format(
+                            article.getCreateTime(), 'yyyy-MM-dd')}]]</i>
+                        <em class="layui-hide-xs">[[${article.getBrowseNum()}]]阅/[[${article.getCommentNum()}]]答</em>
+                    </li>
+                    <div th:if="${#arrays.isEmpty(articleList)}" class="fly-none"
+                         style="min-height: 50px; padding:30px 0; height:auto;">
+                        <i style="font-size:14px;">还没有发表任何动态哦</i>
+                    </div>
+                </ul>
+            </div>
+        </div>
+
+        <div class="layui-col-md6 fly-home-da">
+            <div class="fly-panel">
+                <h3 class="fly-panel-title"> [[${UserInfo.getNickName()}]] 最近的互动</h3>
+                <ul class="home-jieda">
+                    <li th:id="${messageStat.index}" th:each="message:${messageList}">
+                        <input id="arrayLength" type="hidden" th:value="${#arrays.length(messageList)}">
+                        <p>
+                            <input th:id="'date'+${messageStat.index}" type="hidden"
+                                   th:value="${message.getCreateTime()}">
+                            <span th:id="'time'+${messageStat.index}"></span>
+                            在<a target="_blank" th:href="@{'/blog/detail/'+${message.getAid()}}">
+                            <cite th:utext="${message.getTitle()}"></cite>
+                        </a><span th:if="${message.getStatus() == 1}">中回复：</span>
+                            <span th:if="${message.getStatus() == 0}">中发言：</span>
+                        </p>
+                        <div class="home-dacontent">
+                            <div th:utext="${message.getContent()}"></div>
+                        </div>
+                    </li>
+                    <div th:if="${#arrays.isEmpty(messageList)}" class="fly-none"
+                         style="min-height: 50px; padding:30px 0; height:auto;"><span>还没有和任何人互动哦</span></div>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!--页面底部-->
+<div th:replace="~{common/footer::foot}"></div>
+<script th:src="@{/js/mods/home.js}"></script>
+</body>
+</html>
