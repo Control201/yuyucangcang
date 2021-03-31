@@ -1,0 +1,113 @@
+# 类似虚拟路径
+server:
+  port: 8080
+#  port: 443
+#  ssl:
+#    key-store:
+#    key-store-type:
+#    key-store-password:
+#    key-alias: alias
+
+beetl:
+  #模板路径
+  templatesPath: templates
+#  qq授权
+oauth:
+  qq:
+    #你的appid
+    client_id: 101866150
+    #你的appkey
+    client_secret: b13cdbf957e09f4edeb37acdcafa6466
+    #你接收响应code码地址
+    redirect_uri: http://127.0.0.1/user/qq/rollback
+    #腾讯获取code码地址
+    code_callback_uri: https://graph.qq.com/oauth2.0/authorize
+    #腾讯获取access_token地址
+    access_token_callback_uri: https://graph.qq.com/oauth2.0/token
+    #腾讯获取openid地址
+    openid_callback_uri: https://graph.qq.com/oauth2.0/me
+    #腾讯获取用户信息地址
+    user_info_callback_uri: https://graph.qq.com/user/get_user_info
+spring:
+  servlet:
+#    设置上传文件大小
+    multipart:
+      max-file-size: 6MB
+      max-request-size: 50MB
+  mvc:
+    date-format: yyyy-MM-dd
+  # 禁止thymeleaf缓存
+  thymeleaf:
+    cache: false
+  #热部署
+  devtools:
+    restart:
+      enabled: false  #设置关闭热部署
+#      enabled: true  #设置开启热部署
+  freemarker:
+    cache: false    #页面不加载缓存，修改即时生效
+#  连接redis数据库
+  redis:
+#    host: 101.133.208.179
+    host: localhost
+    port: 6379
+    timeout: 1000
+    password:
+  #  本地连接数据库
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/community?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2b8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #type 用户切换数据源头
+    type: com.alibaba.druid.pool.DruidDataSource
+    #Spring Boot 默认是不注入这些属性值的，需要自己绑定
+    #druid 数据源专有配置
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    #配置监控统计拦截的filters，stat:监控统计、log4j：日志记录、wall：防御sql注入
+    #如果允许时报错  java.lang.ClassNotFoundException: org.apache.log4j.Priority
+    #则导入 log4j 依赖即可，Maven 地址： https://mvnrepository.com/artifact/log4j/log4j
+    filters: stat,wall,log4j
+    maxPoolPreparedStatementPerConnectionSize: 20
+    useGlobalDataSourceStat: true
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+    #邮件发送
+  mail:
+    username:
+    password:
+    host:
+    #阿里云25端口禁用了
+    port: 587
+    default-encoding: utf-8
+    #开启加密验证
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: ture
+mybatis:
+  #指定myBatis的核心配置文件与Mapper映射文件
+  mapper-locations: classpath:mapper/*.xml
+  # 注意：对应实体类的路径
+  type-aliases-package: com.share.entity,com.share.dto
+  # 开启mybatis驼峰型  和下划线字段 转换。
+  configuration:
+    map-underscore-to-camel-case: true
+
+
+
+
+
+
+
+

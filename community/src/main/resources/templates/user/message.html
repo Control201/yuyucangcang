@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>我的消息</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="郁郁苍苍,Share,分享,生活,快乐,让世间美好与你环环相扣">
+    <meta name="time" content="写自于2020年一个雪虐风饕的晚上">
+    <meta name="description" content="乐人之乐,人亦乐其乐;忧人之忧,人亦忧其忧。郁郁苍苍 一个可以分享心情,分享时光,分享生活点滴的社交平台">
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="bookmark" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/layui/css/modules/layer/default/layer.css}">
+</head>
+
+<body>
+<!--引入上边栏-->
+<div th:replace="~{common/header::head}"></div>
+
+<!--页面中间-->
+<div class="layui-container fly-marginTop fly-user-main">
+    <!--登录后的-用户左边栏-->
+    <ul class="layui-nav layui-bg-cyan layui-nav-tree layui-inline" lay-filter="user">
+        <li class="layui-nav-item">
+            <a th:href="@{'/user/home/'+${session.loginUser.getUid()}}">
+                <i class="layui-icon">&#xe609;</i>
+                我的主页
+            </a>
+        </li>
+        <li class="layui-nav-item">
+            <a th:href="@{'/user/set/'+${session.loginUser.getUid()}}">
+                <i class="layui-icon">&#xe620;</i>
+                基本设置
+            </a>
+        </li>
+        <li class="layui-nav-item ">
+            <a th:href="@{/user/index}">
+                <i class="layui-icon">&#xe60a;</i>
+                我的帖子
+            </a>
+        </li>
+
+        <li class="layui-nav-item layui-this">
+            <a th:href="@{/user/message}">
+                <i class="layui-icon">&#xe611;</i>
+                我的消息
+            </a>
+        </li>
+
+        <li class="layui-nav-item">
+            <a th:href="@{/user/relation}">
+                <i class="layui-icon">&#xe770;</i>
+                我的圈子
+            </a>
+        </li>
+    </ul>
+    <!--手机适配-->
+    <div class="site-tree-mobile layui-hide">
+        <i class="layui-icon"></i>
+    </div>
+    <div class="site-mobile-shade"></div>
+
+
+    <div class="fly-panel fly-panel-user" pad20>
+        <div class="layui-tab layui-tab-brief" lay-filter="user" id="LAY_msg" style="margin-top: 15px;">
+            <button class="layui-btn  layui-btn-primary" id="LAY_delallmsg" onclick="checkAll()"><i
+                    class="layui-icon layui-icon-fonts-clear"></i>设置全部已读
+            </button>
+            <div id="LAY_minemsg" style="margin-top: 10px;">
+                <!--<div class="fly-none">您暂时没有最新消息</div>-->
+                <ul class="mine-msg">
+                    <li th:id="${messageStat.index}" th:each="message:${messageList}">
+                        <input id="arrayLength" type="hidden" th:value="${#arrays.length(messageList)}">
+                        <blockquote class="layui-elem-quote">
+                            <a th:href="@{'/user/home/'+${message.getUid()}}" target="_blank">
+                                <cite id="senderNickname">[[${message.getNickname()}]]</cite>
+                            </a>
+                            <span>在</span>
+                            <a target="_blank" th:if="${message.getStatus() != 2}" th:href="@{'/blog/detail/'+${message.getAid()}}">
+                                <cite th:utext="${message.getTitle()}"></cite>
+                            </a>
+                            <span th:if="${message.getStatus() == 2}">
+                               <cite th:utext="${message.getTitle()}"></cite>
+                            </span>
+                            <span th:if="${message.getStatus() == 0}">评论了你的帖子</span>
+                            <span th:if="${message.getStatus() == 1} ">@并提到了你</span>
+                            <span th:if="${message.getStatus() == 2} ">向你发起了私信</span>
+                            <span th:id="'read'+${message.getId()}" class="newMessage">
+                            <span  class="layui-badge" th:if="${message.getReadStatus() == 0}">新消息</span>
+                            </span>
+                        </blockquote>
+                        <p>
+                            <input th:id="'date'+${messageStat.index}" type="hidden"
+                                   th:value="${message.getCreateTime()}">
+                            <span th:id="'time'+${messageStat.index}"></span>
+                            <button th:onclick="check([[${message.getId()}]])"
+                                    class="layui-btn layui-btn-normal layui-btn-small fly-delete">查看
+                            </button>
+                        </p>
+                        <input th:id="${message.getId()}" th:data-read="${message.getReadStatus() == 1 } ? 'true' : 'false'" type="hidden"
+                               th:value="${message.getContent()}">
+                    </li>
+                    <div th:if="${#arrays.isEmpty(messageList)}" class="fly-none"
+                         style="min-height: 50px; padding:30px 0; height:auto;">
+                        <i style="font-size:14px;">没有收到最近消息哦！赶紧活跃起来吧</i>
+                    </div>
+                </ul>
+                <div style="text-align: center;" th:if="${messageTotal} > 5">
+                    <!--分页-->
+                    <div id="demo4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--页面底部-->
+<div th:replace="~{common/footer::foot}"></div>
+<script th:inline="javascript">
+    //查看消息
+    function check(mid) {
+        //写入内容
+        var dom = $("#" + mid);
+        var senderNickname = $("#senderNickname").text()+' :';
+        var message = '<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>' + $("#" + mid).val();
+        if (dom.attr("data-read") === 'false') {
+            $.post("/user/message/readMessage", {"mid": mid}, function (data) {
+                if (data.status === 2003) {
+                    dom.attr("data-read",true);
+                    //点击清空标签内容
+                    $("#read" + mid).empty();
+                }
+            });
+        }
+//自定页
+        layer.open({
+            type: 1,
+            title: senderNickname,
+            skin: 'layui-layer-lan', //样式类名
+            closeBtn: 0, //不显示关闭按钮
+            shadeClose: true, //开启遮罩关闭
+            area: ['350px', '220px'],
+            content: message
+        });
+    }
+    //设置所有为已读
+    function checkAll(){
+        lockTime("#LAY_delallmsg",1000);
+        $.post("/user/message/readAllMessage",{}, function (data) {
+            if (data.status === 2003) {
+                $("input[data-read = 'false']").attr("data-read",true);
+                //点击清空标签内容
+                $(".newMessage").empty();
+                layer.msg('全部设置已读');
+            }else if(data.status === 2004){
+                layer.msg(data.message);
+            }
+        });
+    }
+    layui.use(['laypage', 'layer'], function () {
+        var laypage = layui.laypage
+            , layer = layui.layer;
+        //自定义首页、尾页、上一页、下一页文本
+        laypage.render({
+            elem: 'demo4'
+            , count: [[${messageTotal}]]
+            , curr: [[${currentPage}]]
+            , first: false
+            , last: false
+            , theme: '#1E9FFF'
+            , jump: function (obj, first) {
+                if (!first) {
+                    window.location.href = "/user/message/" + obj.curr;
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

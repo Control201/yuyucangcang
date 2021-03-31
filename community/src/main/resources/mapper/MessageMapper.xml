@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.share.mapper.MessageMapper">
+    <insert id="addMessage" parameterType="com.share.entity.Message">
+            insert into message(aid, uid, rid, status, create_time, content)
+             values (#{aid},#{uid},#{rid},#{status},#{createTime},#{content})
+    </insert>
+    <select id="findMessageByRid" resultType="com.share.dto.MessageDto">
+         SELECT
+            m.id,
+            m.aid,
+            m.content,
+            m.create_time,
+            m.`status`,
+            m.uid,
+            m.read_status,
+            u.nickname,
+            a.title
+        FROM
+        message  m
+        join  user as u on u.uid = m.uid
+        join article a on a.aid = m.aid
+        WHERE
+            m.rid = #{uid}
+          order BY m.create_time desc
+	      LIMIT #{start},5;
+    </select>
+    <select id="findMessageByUid" parameterType="Long" resultType="com.share.dto.MessageDto">
+         SELECT
+            m.id,
+            m.aid,
+            m.content,
+            m.create_time,
+            m.`status`,
+            m.uid,
+            u.nickname,
+            a.title
+        FROM
+            message  m
+        join  user as u on u.uid = m.uid
+        join article a on a.aid = m.aid
+        WHERE
+            m.uid = #{uid} and a.open_procedure = 0
+          order BY m.create_time desc
+	      LIMIT 5;
+    </select>
+    <select id="findTotalByRid" parameterType="Long" resultType="Integer">
+        select count(id) from message where rid = #{uid}
+    </select>
+    <update id="setReadStatus" parameterType="com.share.entity.Message">
+        update message set read_status = 1
+        <where>
+        <if test="rid!=null">
+           and rid = #{rid}
+        </if>
+        <if test="id!=null">
+        and id = #{id}
+        </if>
+        and read_status = 0
+       </where>;
+    </update>
+
+    <select id="findNewMessageTotal" parameterType="Long" resultType="Integer">
+        select
+        count(m.id)
+        from
+        message as m
+        join user as u on m.rid = u.uid
+        where m.rid = #{rid} and  m.read_status = 0
+    </select>
+
+</mapper>

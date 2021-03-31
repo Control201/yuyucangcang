@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>郁郁苍苍|让世间美好与你环环相扣</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="郁郁苍苍,Share,分享,生活,快乐,让世间美好与你环环相扣">
+    <meta name="time" content="写自于2020年初一个雪虐风饕的晚上">
+    <meta name="description" content="乐人之乐,人亦乐其乐;忧人之忧,人亦忧其忧。郁郁苍苍 一个可以分享心情,分享时光,分享生活点滴的社交平台">
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="bookmark" th:href="@{/favicon.ico}" type="image/x-icon"/>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/layui/css/modules/layer/default/layer.css}">
+</head>
+
+<body>
+<!--引入上边栏-->
+<div th:replace="~{common/header::head}"></div>
+<!--引入公共行  (active='/index')传参数-->
+<div th:replace="~{common/column::index-column(active='/index')}"></div>
+<div class="layui-container">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <!--未加入轮播图-->
+            <div class="fly-panel">
+                <div class="layui-row fly-panel-main" style="padding: 15px; ">
+                    <div class="layui-carousel" id="test10">
+                        <div carousel-item="">
+                            <div><img src="/images/photo/2.jpg" style=" width: 100%; height: auto; max-height: 420px ">
+                            </div>
+                            <div><img src="/images/photo/1.jpg" style=" width: 100%; height: auto; max-height: 420px ">
+                            </div>
+                            <div><img src="/images/photo/4.jpg" style=" width: 100%; height: auto; max-height: 420px">
+                            </div>
+                            <div><img src="/images/photo/5.jpg" style=" width: 100%; height: auto; max-height: 420px">
+                            </div>
+                            <div><img src="/images/photo/3.jpg" style=" width: 100%; height: auto; max-height: 420px">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+             <!-- 置顶页面-->
+           <div class="fly-panel">
+                    <div class="fly-panel-title fly-filter">
+                        <a>置顶</a>
+                        <a href="#signin" class="layui-hide-sm layui-show-xs-block fly-right" id="LAY_goSignin"
+                           style="color: #FF5722;">去签到</a>
+                    </div>
+                    <ul class="fly-list">
+                        <input id="topSize" type="hidden" th:value="${topArticleList.size()}" />
+                        <li th:id="${articleStat.index}" th:each="article:${topArticleList}">
+                            <a th:href="@{'/user/home/'+${article.getUid()}}" class="fly-avatar">
+                                <img th:src="@{${article.getAvatar()}}"
+                                     th:alt="${article.getNickname()}">
+                            </a>
+                            <h2>
+                                <a class="layui-badge" th:if="${article.getArticleType()!=2}">动态</a>
+                                <a class="layui-badge" th:if="${article.getArticleType()==2}">公告</a>
+                                <a th:href="@{'blog/detail/'+${article.getAid()}}" th:utext="${article.getTitle()}"></a>
+                            </h2>
+                            <div class="fly-list-info">
+                                <a th:href="@{'/user/home/'+${article.getUid()}}" link>
+                                    <cite>[[${article.getNickname()}]]</cite>
+                                    <!--
+                                    <i class="iconfont icon-renzheng" title="认证信息：XXX"></i>
+                                    <i class="layui-badge fly-badge-vip">VIP3</i>
+                                    -->
+                                </a>
+
+                                <input type="hidden" th:value="${article.getExp()}" th:id="topExp+${articleStat.index}">
+                                <span th:id="topAddStamp+${articleStat.index}"></span>
+                                <!--  根据时间判断显示方式-->
+                                <span th:if="${time}==${#dates.format( article.getCreateTime(), 'MM-dd')}">[[${#dates.format( article.getCreateTime(), 'HH:mm')}]]</span>
+                                <span th:if="${time}!=${#dates.format( article.getCreateTime(), 'MM-dd')}">[[${#dates.format( article.getCreateTime(), 'MM-dd')}]]</span>
+                                <span class="fly-list-nums">
+                <i class="iconfont icon-pinglun1" title="回复"></i>[[${article.getCommentNum()}]]
+                                </span>
+                            </div>
+                            <div class="fly-list-badge">
+                                <span class="layui-badge layui-bg-black">置顶</span>
+                                <span class="layui-badge layui-bg-red" th:if="${article.getArticleType()==1}">精帖</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            <div class="fly-panel" style="margin-bottom: 0;">
+                    <div class="fly-panel-title fly-filter">
+                        <a th:href="@{/index.html}" class="layui-this">综合</a>
+                        <span class="fly-mid"></span>
+                        <a th:href="@{/blog/noReply/1}">消灭零回复</a>
+                    </div>
+                    <ul class="fly-list">
+                    <input id="indexSize" type="hidden" th:value="${articleList.size()}" />
+                        <li th:id="${articleStat.index}" th:each="article:${articleList}">
+                            <a th:href="@{'/user/home/'+${article.getUid()}}" class="fly-avatar">
+                                <img th:src="@{${article.getAvatar()}}" th:alt="${article.getNickname()}">
+                            </a>
+                            <h2>
+                                <a class="layui-badge" th:if="${article.getArticleType()!=2}">动态</a>
+                                <a class="layui-badge" th:if="${article.getArticleType()==2}">公告</a>
+                                <a th:href="@{'blog/detail/'+${article.getAid()}}" th:utext="${article.getTitle()}"></a>
+                            </h2>
+                            <div class="fly-list-info">
+                                <a th:href="@{'/user/home/'+${article.getUid()}}" link>
+                                    <cite>[[${article.getNickname()}]]</cite>
+                                    <!--
+                                    <i class="iconfont icon-renzheng" title="认证信息：XXX"></i>
+                                    <i class="layui-badge fly-badge-vip">VIP3</i>
+                                    -->
+                                </a>
+                                <input type="hidden" th:value="${article.getExp()}" th:id="indexExp+${articleStat.index}">
+                                <span th:id="indexAddStamp+${articleStat.index}"></span>
+                                <!--  根据时间判断显示方式-->
+                                <span th:if="${time}==${#dates.format( article.getUpdateTime(), 'MM-dd')}">[[${#dates.format( article.getUpdateTime(), 'HH:mm')}]]</span>
+                                <span th:if="${time}!=${#dates.format( article.getUpdateTime(), 'MM-dd')}">[[${#dates.format( article.getUpdateTime(), 'MM-dd')}]]</span>
+                                <span class="fly-list-nums">
+                <i class="iconfont icon-pinglun1" title="回复"></i>[[${article.getCommentNum()}]]
+              </span>
+                            </div>
+                            <div class="fly-list-badge" th:if="${article.getArticleType()==1}">
+                                <span class="layui-badge layui-bg-red">精帖</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div style="text-align: center">
+                        <div class="laypage-main">
+                            <a th:href="@{/blog/index/1}" class="laypage-next">更多帖子</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md4">
+                <div class="fly-panel">
+                    <div class="fly-panel-title">温馨通道
+                        <i class="layui-icon layui-icon-release" style="color: black"></i>
+                    </div>
+                    <div class="layui-row fly-panel-main" style="padding: 15px;">
+                        <div class="layui-clear fly-list-quick">
+                            <div class="layui-col-xs6">
+                                <div><a th:href="@{/blog/detail/25}" target="_blank" id="jay"> 周杰伦专栏 </a></div>
+                            </div>
+                            <div class="layui-col-xs6">
+                                <div><a th:href="@{/game}" target="_blank" id="game"> 圈小猫小游戏 </a></div>
+                            </div>
+                            <div class="layui-col-xs6">
+                                <div><a th:href="@{/blog/boutique/1}" target="_blank" id="blog"> 精贴集锦 </a></div>
+                            </div>
+                            <div class="layui-col-xs6">
+                                <div><a th:href="@{/blog/announcement/1}" target="_blank" id="notice"> 公告栏 </a></div>
+                            </div>
+                            <div class="layui-col-xs6">
+                                <div><a th:href="@{/blog/detail/15}" target="_blank" id="web"> 关于网站 </a></div>
+                            </div>
+                            <div class="layui-col-xs6">
+                                <div><a href="javascript:;" id="rank"> 关于等级 </a></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--   签到-->
+                <a name="signin"></a>
+
+                <div class="fly-panel fly-signin">
+                    <div class="fly-panel-title">
+                        签到
+                        <i class="fly-mid"></i>
+                        <a href="javascript:;" class="fly-link" id="LAY_signinHelp">说明</a>
+                        <i class="fly-mid" th:if="${session.loginUser!=null}"></i>
+                        <a href="javascript:;" class="fly-link" id="allExps" th:if="${session.loginUser!=null}">总经验值</a>
+                        <span class="fly-signin-days" th:if="${session.loginUser!=null}">已连续签到<cite id
+                                                                                                    th:text="${signIn.continuousDay == null} ? 0 : ${signIn.continuousDay}">0</cite>天</span>
+                    </div>
+                    <div class="fly-panel-main fly-signin-main" th:if="${session.loginUser == null}">
+                        <button class="layui-btn layui-btn-danger" id="LAY_signin">今日签到</button>
+                    </div>
+                    <div class="fly-panel-main fly-signin-main" th:if="${session.loginUser!=null}">
+                        <button class="layui-btn layui-btn-danger" id="LAY_signin" th:if="${signIn.checkSign} < 0">今日签到
+                        </button>
+                        <button class="layui-btn layui-btn-disabled" th:if="${signIn.checkSign} > 0">今日已签到</button>
+                        <div th:if="${signIn.checkSign} < 0" style="padding: 4px 0;">
+                            签到可获得了<cite>[[${signIn.exp}]]</cite>经验
+                        </div>
+                        <!-- 已签到状态 -->
+                        <div th:if="${signIn.checkSign} > 0" style="padding: 4px 0;">
+                            今天第<cite>[[${signIn.checkSign}]]</cite>个签到,已获得了<cite>[[${signIn.exp}]]</cite>经验
+                        </div>
+                    </div>
+                </div>
+                <!--          本周热议 -->
+                <div th:replace="~{common/hotspot::hotspot}"></div>
+                <!--            广告模块-->
+                <div th:replace="~{common/ad::ad}"></div>
+                <!--            友情链接-->
+                <div th:replace="~{common/link::link}"></div>
+            </div>
+        </div>
+    </div>
+    <!--页面底部-->
+    <div th:replace="~{common/footer::foot}"></div>
+    <script th:src="@{/js/mods/index.js}"></script>
+    <script th:src="@{/js/mods/login2.js}"></script>
+</body>
+</html>

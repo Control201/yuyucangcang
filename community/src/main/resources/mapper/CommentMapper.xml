@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.share.mapper.CommentMapper">
+
+    <select id="findCommentByAid" parameterType="com.share.entity.Page" resultType="com.share.dto.CommentDto">
+        select
+        u.uid uid,
+        u.nickname nickname,
+        u.avatar avatar,
+        u.exp exp,
+        ac.id id,
+        ac.content content,
+        ac.comment_status comment_status,
+        l.num love_num,
+        ac.create_time create_time
+        from
+        article_comment as  ac
+        left join user as u on ac.uid = u.uid
+        left JOIN (select ac.id acid,count(lr.id) num from love_record as lr join article_comment as ac on ac.id = lr.acid GROUP BY(ac.id)) AS l ON l.acid = ac.id
+        where ac.aid = #{aid}
+        ORDER BY ac.create_time asc
+        limit #{start},#{rows};
+    </select>
+    <select id="findCommentByUid" parameterType="com.share.entity.Page" resultType="com.share.dto.CommentDto">
+        select
+        u.uid uid,
+        u.nickname nickname,
+        u.avatar avatar,
+        u.exp exp,
+        ac.id id,
+        ac.content content,
+        ac.comment_status comment_status,
+        l.num love_num,
+        s.status status,
+        ac.create_time create_time
+        from
+        article_comment as  ac
+        left join user as u on ac.uid = u.uid
+        left JOIN (select ac.id acid,count(lr.id) num from love_record as lr join article_comment as ac on ac.id = lr.acid GROUP BY(ac.id)) AS l ON l.acid = ac.id
+        left JOIN (select lr.id,ac.aid aid,ac.id acid,lr.uid,lr.status status from love_record as lr join article_comment as ac on lr.acid = ac.id where  lr.uid = #{uid} GROUP BY(lr.id)) AS s on s.acid = ac.id
+        where ac.aid = #{aid}
+        ORDER BY ac.create_time asc
+        limit #{start},#{rows};
+    </select>
+    <select id="findTotal" parameterType="com.share.entity.Page" resultType="Integer">
+	    select count(id) from article_comment where aid = #{aid};
+    </select>
+    <insert id="addComment" parameterType="com.share.entity.Comment">
+        insert into article_comment (aid, uid, create_time, content) values (#{aid},#{uid},#{createTime},#{content});
+    </insert>
+    <insert id="addLoveRecord" parameterType="com.share.entity.LoveRecord">
+        insert into love_record (acid, uid, create_time, status) values(#{acid},#{uid},#{createTime},#{status});
+    </insert>
+    <select id="findLoveRecord" parameterType="com.share.entity.LoveRecord" resultType="Integer">
+        select count(id) from love_record where acid = #{acid} and uid = #{uid}
+    </select>
+    <delete id="delLoveRecord" parameterType="com.share.entity.LoveRecord">
+        delete from love_record where uid = #{uid}  and acid = #{acid}
+    </delete>
+    <delete id="delComment" parameterType="Integer">
+        delete from article_comment where id = #{acid}
+    </delete>
+</mapper>

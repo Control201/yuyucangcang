@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.share.mapper.BlogMapper">
+
+    <insert id="addBlog" parameterType="com.share.entity.Blog">
+        insert into article(title, uid, create_time, content, open_procedure, review_status, temp_file,update_time)
+         values (#{title},#{uid},#{createTime},#{content},#{openProcedure},#{reviewStatus},#{tempFile},#{updateTime});
+    </insert>
+
+    <select id="findTotalByUid" resultType="Integer">
+        select count(aid) from article where uid = #{uid}  and  open_procedure = #{open_procedure}
+    </select>
+
+    <select id="homePageBlog" parameterType="com.share.entity.Page" resultType="com.share.dto.ArticleDto">
+        SELECT
+            u.uid uid,
+            u.nickname nickname,
+            u.avatar avatar,
+            u.exp exp,
+            a.aid aid,
+            a.title title,
+            (select count(id) from article_comment where article_comment.aid = a.aid)  comment_num,
+            a.article_type article_type,
+            a.create_time create_time,
+           a.update_time update_time
+        FROM
+            article AS a
+            JOIN user AS u ON a.uid = u.uid
+            where a.top = #{topStatus}  and  a.open_procedure = 0
+            ORDER BY a.update_time desc,a.aid desc LIMIT #{rows};
+    </select>
+
+    <select id="findBlogList" parameterType="com.share.entity.Page" resultType="com.share.dto.ArticleDto">
+        SELECT
+        u.uid uid,
+        u.nickname nickname,
+        u.avatar avatar,
+        u.exp exp,
+        a.aid aid,
+        a.title title,
+        (select count(id) from article_comment where article_comment.aid = a.aid) comment_num,
+        a.article_type article_type,
+        a.create_time create_time,
+        a.update_time update_time
+        FROM
+        article AS a
+        JOIN user AS u ON a.uid = u.uid
+        <where>
+            <if test="topStatus!=null">
+                and a.top = #{topStatus}
+            </if>
+            <if test="articleType!=null">
+                and a.article_type = #{articleType}
+            </if>
+            <if test="commentNum!=null and articleType ==null ">
+                and (select count(id) from article_comment where article_comment.aid = a.aid) = #{commentNum} and
+                a.article_type != 2
+            </if>
+            and a.open_procedure = 0
+        </where>
+        <if test="articleType!=null and articleType == 2">
+            ORDER BY a.aid desc LIMIT #{start},#{rows};
+        </if>
+        <if test="articleType == null or articleType != 2">
+            ORDER BY a.update_time desc ,a.aid desc LIMIT #{start},#{rows};
+        </if>
+    </select>
+
+    <select id="findRelationBlogList" parameterType="com.share.entity.Page" resultType="com.share.dto.ArticleDto">
+          SELECT
+             u.uid uid,
+             u.nickname nickname,
+             u.avatar avatar,
+             u.exp exp,
+             a.aid aid,
+             a.title title,
+             (select count(id) from article_comment where article_comment.aid = a.aid)  comment_num,
+             a.article_type article_type,
+             a.create_time create_time
+             FROM
+             article AS a
+             JOIN user AS u ON a.uid = u.uid
+	        	JOIN user_relation as rs on rs.rid = u.uid
+                where a.open_procedure = 0 and rs.uid = #{uid}
+        ORDER BY a.aid desc  LIMIT #{start},#{rows};
+    </select>
+
+    <select id="findRelationBlogTotal" parameterType="com.share.entity.Page" resultType="Integer">
+            SELECT
+                count(a.aid)
+            FROM
+                article AS a
+                JOIN user_relation AS rs ON rs.rid = a.uid
+            WHERE
+                a.open_procedure = 0
+                AND rs.uid = #{uid}
+    </select>
+
+    <select id="findTotal" parameterType="com.share.entity.Page" resultType="Integer">
+        select count(aid) from article
+        <where>
+            <if test="topStatus!=null">
+                and top = #{topStatus}
+            </if>
+            <if test="commentNum!=null">
+                and (select count(id) from article_comment where article_comment.aid = article.aid) = #{commentNum}
+            </if>
+            <if test="articleType!=null">
+                and article_type = #{articleType}
+            </if>
+            and open_procedure = 0
+        </where>
+    </select>
+
+    <select id="hotSpot" resultType="com.share.dto.ArticleDto">
+        SELECT
+         aid,
+         title,
+        comment_num
+        FROM
+        (SELECT * FROM article WHERE DATE_SUB( CURDATE(), INTERVAL 14 DAY ) <![CDATA[ <= ]]> date( update_time )  and  open_procedure = 0 ORDER BY (select count(id) from article_comment where article_comment.aid = article.aid) DESC LIMIT 10 ) as a
+    </select>
+
+    <select id="findBlogByUid" resultType="com.share.dto.ArticleDto">
+        SELECT
+        aid,
+        title,
+        create_time,
+        browse_num,
+        article_type,
+       (select count(id) from article_comment where article_comment.aid = article.aid)  comment_num
+        from
+        article
+        where uid = #{uid}  and  open_procedure = #{open_procedure}
+        order by create_time desc
+        limit #{start},10;
+    </select>
+
+    <select id="findBlogByAid" parameterType="Integer" resultType="com.share.dto.ArticleDetailDto">
+       select
+        u.uid uid,
+        u.nickname nickname,
+        u.avatar avatar,
+        u.exp exp,
+        a.aid aid,
+        a.title title,
+        (select count(id) from article_comment where article_comment.aid = a.aid)  comment_num,
+        a.article_type article_type,
+        a.create_time create_time ,
+        a.browse_num browse_num,
+        a.content content,
+        a.open_procedure open_procedure,
+        a.review_status review_status,
+        a.top top,
+        a.`status` `status`
+        FROM
+        article AS a
+        JOIN user AS u ON a.uid = u.uid
+        where a.aid = #{aid}
+    </select>
+
+    <update id="addBrowseNum" parameterType="Integer">
+        update article set browse_num = browse_num + 1 where aid = #{aid}
+    </update>
+
+    <delete id="delBlog" parameterType="Integer">
+        delete from article where aid = #{aid}
+    </delete>
+
+    <insert id="addCollectBlog" parameterType="com.share.entity.CollectBlog">
+        insert into collect_blog (aid, uid, create_time, status) values(#{aid},#{uid},#{createTime},#{status});
+    </insert>
+
+
+    <select id="findCollectBlog" parameterType="com.share.entity.CollectBlog" resultType="Integer">
+        select count(id) from collect_blog
+        <where>
+            <if test="aid!=null">
+                and aid = #{aid}
+            </if>
+            and uid = #{uid}
+        </where>
+    </select>
+
+    <delete id="delCollectBlog" parameterType="com.share.entity.CollectBlog">
+        delete from collect_blog where uid = #{uid} and aid = #{aid}
+    </delete>
+
+
+    <select id="findCollectBlogList" resultType="com.share.dto.ArticleDto">
+        SELECT
+            a.aid,
+            a.title,
+            a.create_time,
+            a.browse_num,
+            a.article_type,
+           (select count(id) from article_comment where article_comment.aid = a.aid)  comment_num
+        FROM
+            article AS a
+            JOIN collect_blog AS cb ON cb.aid = a.aid
+        WHERE
+            cb.uid = #{uid}
+        ORDER BY
+            a.create_time DESC
+            LIMIT #{start},10;
+    </select>
+
+    <update id="updateBlogTime">
+        update article set update_time = #{updateTime} where aid = #{aid};
+    </update>
+</mapper>

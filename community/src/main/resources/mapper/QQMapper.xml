@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.share.mapper.QQMapper">
+
+    <select id="findUidByOpenId" resultType="java.lang.Long">
+        select uid from qq_info where open_id = #{openId};
+    </select>
+
+    <insert id="addQQInfo">
+        insert into qq_info (uid, open_id, create_time) values (#{uid},#{openId},now());
+    </insert>
+
+    <insert id="addUser">
+        insert into user(uid, nickname, password, sex,create_time, location, channel_id,email)
+        values(#{uid},#{nickname},#{password},#{sex},#{createTime},#{location},#{channelId},#{email})
+    </insert>
+
+    <select id="findUserByUid" parameterType="Long" resultType="com.share.entity.User">
+        select uid,email,password,authority,status from user where uid = #{uid}  LIMIT 1;
+    </select>
+
+    <select id="findOpenIdByUid" resultType="java.lang.String">
+        select  open_id from qq_info where uid = #{uid}  LIMIT 1;
+    </select>
+
+</mapper>

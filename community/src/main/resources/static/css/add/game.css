@@ -1,0 +1,76 @@
+BODY {
+    MARGIN: 0px;
+    BACKGROUND-COLOR: #000000
+}
+
+BODY {
+    COLOR: #ffffff;
+    FONT-FAMILY: Comic Sans MS;
+    background-image: url(/css/img/gamebg.jpg);
+    background-repeat: repeat;
+    background-color: #D9D9D9;
+}
+
+TD {
+    COLOR: #ffffff;
+    FONT-FAMILY: Comic Sans MS
+}
+
+TH {
+    COLOR: #ffffff;
+    FONT-FAMILY: Comic Sans MS
+}
+
+.style6 {
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 12px
+}
+
+.style7 {
+    FONT-SIZE: 18px
+}
+
+.style8 {
+    FONT-SIZE: 12px
+}
+
+.style9 {
+    FONT-SIZE: 24px;
+    FONT-FAMILY: "楷体_GB2312"
+}
+
+.style10 {
+    COLOR: #ff0000
+}
+
+body,
+td,
+th {
+    color: #666;
+}
+
+a {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    color: #666;
+}
+
+a:link {
+    text-decoration: none;
+    color: #06F;
+}
+
+a:visited {
+    text-decoration: none;
+    color: #09F;
+}
+
+a:hover {
+    text-decoration: none;
+    color: #09F;
+}
+
+a:active {
+    text-decoration: none;
+    color: #09F;
+}

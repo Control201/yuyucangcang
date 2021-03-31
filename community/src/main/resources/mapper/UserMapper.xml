@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.share.mapper.UserMapper">
+
+    <insert id="addUser" parameterType="com.share.entity.User">
+        insert into user(uid,nickname,password,create_time,email,ip,location)
+        values(#{uid},#{nickname},#{password},#{createTime},#{email},#{ip},#{location});
+    </insert>
+
+
+    <select id="findUserById" parameterType="Long" resultType="com.share.entity.User">
+        select * from user where uid = #{uid} LIMIT 1;
+    </select>
+
+    <select id="findUserByName" parameterType="String" resultType="com.share.entity.User">
+        select uid,email,password,authority,status from user where email = #{email}  LIMIT 1;
+    </select>
+
+    <update id="modifyUserPassword" parameterType="com.share.entity.User">
+        update user set password = #{password} ,update_time = #{updateTime} where email = #{email};
+    </update>
+
+    <update id="updateLastTime" parameterType="com.share.entity.User">
+        update user
+        <set>
+            <if test="ip!=null and ip!='' ">
+                ip=#{ip},
+            </if>
+            <if test="lastTime!=null">
+                last_time = #{lastTime}
+            </if>
+        </set>
+        where uid=#{uid};
+    </update>
+
+    <update id="modifyUserInfo" parameterType="com.share.entity.User">
+        update user
+        <set>
+            <if test="nickname!=null and nickname!='' ">
+                nickname=#{nickname},
+            </if>
+            <if test="location!=null ">
+                location=#{location},
+            </if>
+            <if test="sex!=null and sex!='' ">
+                sex=#{sex},
+            </if>
+            <if test="birthday!=null">
+                birthday=#{birthday},
+            </if>
+            <if test="signature!=null ">
+                signature=#{signature},
+            </if>
+            <if test="mobile!=null and mobile!='' ">
+                mobile = #{mobile},
+                <if test="updateTime!=null ">
+                    update_time=#{updateTime}
+                </if>
+            </if>
+            <if test="avatar!=null and avatar != '' ">
+                avatar = #{avatar}
+            </if>
+        </set>
+        where uid = #{uid}
+    </update>
+
+    <insert id="addRelation" parameterType="com.share.entity.UserRelation">
+        insert  into user_relation(uid, rid, status, create_time) values(#{uid},#{rid},#{status},#{createTime});
+    </insert>
+
+    <delete id="modifyRelation" parameterType="com.share.entity.UserRelation">
+        delete from user_relation where uid = #{uid} and rid = #{rid}
+    </delete>
+
+    <select id="findRelation" parameterType="com.share.entity.UserRelation" resultType="com.share.entity.UserRelation">
+        select uid, rid, status, create_time from user_relation where uid = #{uid} and rid = #{rid}  LIMIT 1;
+    </select>
+
+    <select id="findRelationList" resultType="com.share.dto.UserDto">
+        select
+        u.uid uid,
+        u.nickname nickname,
+        u.avatar avatar,
+        u.sex sex,
+        u.signature signature,
+        u.authority authority,
+        u.exp exp
+        from
+        user_relation as ur
+        <if test="status == 0">
+            join user as u on ur.rid = u.uid
+        </if>
+        <if test="status == 1">
+            join user as u on ur.uid = u.uid
+        </if>
+        <where>
+            <if test="status == 0">
+                and ur.uid = #{uid}
+            </if>
+            <if test="status == 1">
+                and ur.rid = #{uid}
+            </if>
+        </where>
+        ORDER BY
+        ur.create_time DESC
+        LIMIT #{start},10;
+    </select>
+
+
+    <select id="findRelationTotal" resultType="Integer">
+        select
+        count(id)
+        from
+        user_relation
+        <where>
+            <if test="status == 0">
+                and uid = #{uid}
+            </if>
+            <if test="status == 1">
+                and rid = #{uid}
+            </if>
+        </where>
+    </select>
+
+    <update id="addExpByUid" >
+        update user set exp = exp + #{exp} where uid=#{uid};
+    </update>
+
+</mapper>
+
