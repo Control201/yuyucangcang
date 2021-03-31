@@ -3,6 +3,7 @@
 
 # 1.介绍
 项目为社区网站1.0版本，目前支持发帖评论签到等功能。后续将推出2.0版本。
+2.0版本放在dev分支中，其中的第三方登录，https等操作需要自己配置。。。
 
 项目体验地址：[https://www.yuyucangcang.cn/](https://www.yuyucangcang.cn/)
 
