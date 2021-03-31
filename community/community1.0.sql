@@ -13,6 +13,8 @@
 
  Date: 29/03/2020 06:58:55
 */
+-- 创建数据库
+CREATE DATABASE community;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
