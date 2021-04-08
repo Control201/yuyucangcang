@@ -335,7 +335,7 @@ public class AccountController {
             //收件人
             helper.setTo(email);
             //发送方
-            helper.setFrom("1057559465@qq.com");
+            helper.setFrom("789456465@qq.com");
             try {
                 mailSender.send(mimeMessage);
             } catch (MailException e) {
