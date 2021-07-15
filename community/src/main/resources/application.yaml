@@ -15,9 +15,9 @@ beetl:
 oauth:
   qq:
     #你的appid
-    client_id: 101866150
+    client_id: 
     #你的appkey
-    client_secret: b13cdbf957e09f4edeb37acdcafa6466
+    client_secret: 
     #你接收响应code码地址
     redirect_uri: http://127.0.0.1/user/qq/rollback
     #腾讯获取code码地址
@@ -48,7 +48,6 @@ spring:
     cache: false    #页面不加载缓存，修改即时生效
 #  连接redis数据库
   redis:
-#    host: 101.133.208.179
     host: localhost
     port: 6379
     timeout: 1000
