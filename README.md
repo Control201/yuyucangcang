@@ -4,7 +4,6 @@
 # 1.介绍
 项目为社区网站1.0版本，目前支持发帖评论签到等功能。后续将推出2.0版本。
 
-项目体验地址：[https://www.yuyucangcang.cn/](https://www.yuyucangcang.cn/)
 
 
 项目博客：[https://blog.csdn.net/weixin_44200984/article/details/104502652](https://blog.csdn.net/weixin_44200984/article/details/104502652)
